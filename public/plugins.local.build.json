@@ -1,0 +1,13 @@
+[
+  {
+    "name": "UnmcDirectoryPlugin",
+    "version": "0.0.0",
+    "class": "UnmcDirectoryPlugin",
+    "requires": [
+      {
+        "@twilio/flex-ui": "^1"
+      }
+    ],
+    "src": "http://127.0.0.1:8085"
+  }
+]
