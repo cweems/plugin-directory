@@ -1,13 +1,18 @@
-import React from 'react';
-import { VERSION } from '@twilio/flex-ui';
 import { FlexPlugin } from 'flex-plugin';
-
-import CustomTaskListContainer from './components/CustomTaskList/CustomTaskList.Container';
-import reducers, { namespace } from './states';
+import React from 'react';
+import ParticipantActionsButtons from './components/ParticipantActionsButtons';
+import ParticipantName from './components/ParticipantName';
+import ParticipantStatus from './components/ParticipantStatus';
+import ParticipantStatusContainer from './components/ParticipantStatusContainer';
+import ConferenceButton from './components/ConferenceButton';
+import ConferenceDialog from './components/ConferenceDialog';
+import ConferenceMonitor from './components/ConferenceMonitor';
+import DirectoryAdmin from './components/DirectoryAdmin';
+import './actions/CustomActions';
 
 const PLUGIN_NAME = 'UnmcDirectoryPlugin';
 
-export default class UnmcDirectoryPlugin extends FlexPlugin {
+export default class ExternalConferenceWarmTransferPlugin extends FlexPlugin {
   constructor() {
     super(PLUGIN_NAME);
   }
@@ -19,28 +24,79 @@ export default class UnmcDirectoryPlugin extends FlexPlugin {
    * @param flex { typeof import('@twilio/flex-ui') }
    * @param manager { import('@twilio/flex-ui').Manager }
    */
-  init(flex, manager) {
-    this.registerReducers(manager);
+  init(flex) {
+    flex.CallCanvasActions.Content.add(<ConferenceButton
+      key="conference"
+    />, { sortOrder: 2 });
 
-    const options = { sortOrder: -1 };
-    flex.AgentDesktopView
-      .Panel1
-      .Content
-      .add(<CustomTaskListContainer key="demo-component" />, options);
-  }
+    flex.CallCanvas.Content.add(<ConferenceDialog
+      key="conference-modal"
+    />, { sortOrder: 100 });
 
-  /**
-   * Registers the plugin reducers
-   *
-   * @param manager { Flex.Manager }
-   */
-  registerReducers(manager) {
-    if (!manager.store.addReducer) {
-      // eslint: disable-next-line
-      console.error(`You need FlexUI > 1.9.0 to use built-in redux; you are currently on ${VERSION}`);
-      return;
+    // This component doesn't render anything to the UI, it just monitors
+    // conference changes and takes action as necessary
+    flex.CallCanvas.Content.add(<ConferenceMonitor
+      key="conference-monitor"
+    />, { sortOrder: 999 });
+
+    const isUnknownParticipant = props => props.participant.participantType === 'unknown';
+
+    // This section is for the full width ParticipantCanvas
+    flex.ParticipantCanvas.Content.remove('actions');
+    flex.ParticipantCanvas.Content.add(
+      <ParticipantActionsButtons
+        key="custom-actions"
+      />, { sortOrder: 10 }
+    );
+    flex.ParticipantCanvas.Content.remove('name', { if: isUnknownParticipant });
+    flex.ParticipantCanvas.Content.add(
+      <ParticipantName
+        key="custom-name"
+      />, { sortOrder: 1, if: isUnknownParticipant }
+    );
+    flex.ParticipantCanvas.Content.remove('status');
+    flex.ParticipantCanvas.Content.add(
+      <ParticipantStatus
+        key="custom-status"
+      />, { sortOrder: 2 }
+    );
+
+    // This section is for the narrow width ParticipantCanvas, which changes to List Mode,
+    // introduced in Flex 1.11.0. ListItem did not exist on ParticipantCanvas before 1.11.0.
+    if (flex.ParticipantCanvas.ListItem) {
+      flex.ParticipantCanvas.ListItem.Content.remove('statusContainer');
+      flex.ParticipantCanvas.ListItem.Content.add(
+        <ParticipantStatusContainer
+          key="custom-statusContainer"
+        />, { sortOrder: 1 }
+      );
+      flex.ParticipantCanvas.ListItem.Content.remove('actions');
+      flex.ParticipantCanvas.ListItem.Content.add(
+        <ParticipantActionsButtons
+          key="custom-actions"
+        />, { sortOrder: 10 }
+      );
     }
 
-    manager.store.addReducer(namespace, reducers);
+    flex.ViewCollection.Content.add(
+      <flex.View name="directory-admin" key="directory-admin">
+        <DirectoryAdmin />
+      </flex.View>
+    );
+
+    flex.SideNav.Content.add(
+      <flex.SideLink
+        showLabel={true}
+        icon="Directory"
+        isActive={true}
+        onClick={() => {
+          flex.Actions.invokeAction("HistoryPush", `/directory-admin/`);
+        }}
+        key="directory-admin-link"
+      >
+        My custom page
+      </flex.SideLink>
+    );
+
   }
 }

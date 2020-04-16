@@ -31,6 +31,15 @@ PORT=3000 npm start
 
 When you make changes to your code, the browser window will be automatically refreshed.
 
+1. Create a Sync Service
+twilio api:sync:v1:services:create --friendly-name=contacts
+
+1. Add a Sync Map
+twilio api:sync:v1:services:maps:create --service-sid=ISfd2b646f1011b9eef310f522443c03d9
+
+1. Add Service SID and Map SID as environment variables
+
+
 ## Deploy
 
 Once you are happy with your plugin, you have to bundle it in order to deploy it to Twilio Flex.
