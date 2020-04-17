@@ -24,6 +24,7 @@
     "flex-plugin-scripts": "^3.6.3",
     "react": "16.5.2",
     "react-dom": "16.5.2",
+    "react-phone-number-input": "1.1.14",
     "react-scripts": "3.4.1"
   },
   "devDependencies": {

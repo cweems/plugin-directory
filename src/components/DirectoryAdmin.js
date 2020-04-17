@@ -10,6 +10,8 @@ import TableRow from "@material-ui/core/TableRow";
 import TableCell from "@material-ui/core/TableCell";
 import TableBody from "@material-ui/core/TableBody";
 import Paper from '@material-ui/core/Paper';
+import Button from '@material-ui/core/Button';
+import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 
 
 export default class DirectoryAdmin extends React.Component {
@@ -26,6 +28,8 @@ export default class DirectoryAdmin extends React.Component {
     this.updateName = this.updateName.bind(this);
     this.updatePhone = this.updatePhone.bind(this);
     this.createContact = this.createContact.bind(this);
+    this.deleteContact = this.deleteContact.bind(this);
+
   }
 
   async componentDidMount() {
@@ -56,12 +60,12 @@ export default class DirectoryAdmin extends React.Component {
   async createContact(e) {
     e.preventDefault();
 
-    console.log('saved');
-
+    const name = encodeURIComponent(this.state.newName);
+    const phone = encodeURIComponent(this.state.newPhone);
 
     try {
       const response = await fetch(
-        `https://charcoal-toad-5592.twil.io/create-contact?name=${this.state.newName}&phone=${this.state.newPhone}`
+        `https://charcoal-toad-5592.twil.io/create-contact?name=${name}&phone=${phone}`
       );
       const json = await response.json();
 
@@ -73,6 +77,31 @@ export default class DirectoryAdmin extends React.Component {
       this.setState({
         newName: '',
         newPhone: '',
+        contacts: contacts
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async deleteContact(key) {
+    console.log(key);
+    console.log('delete');
+
+    try {
+      const response = await fetch(
+        `https://charcoal-toad-5592.twil.io/delete-contact?key=${encodeURIComponent(key)}`
+      );
+
+      console.log(this.state.contacts);
+
+      let contacts = this.state.contacts.filter((el) => {
+        if (el.phone !== key) {
+          return el;
+        }
+      });
+
+      this.setState({
         contacts: contacts
       });
     } catch (error) {
@@ -98,15 +127,25 @@ export default class DirectoryAdmin extends React.Component {
       contactList = this.state.contacts.map(pn => {
         return (
           <TableRow key={pn.phone}>
-            <TableCell style={{ paddingLeft: 12, width: '100%' }}>{pn.name}</TableCell>
-            <TableCell style={{ width: '100%' }}>{pn.phone}</TableCell>
-            <TableCell style={{ width: '100%' }}>Edit</TableCell>
-            <TableCell style={{ width: '100%' }}>Delete</TableCell>
+            <TableCell style={{ paddingLeft: 12, width: '250px', fontSize: '1.3em' }}>{pn.name}</TableCell>
+            <TableCell style={{ width: '250px', fontSize: '1.3em' }}>{pn.phone}</TableCell>
+            <TableCell style={{ width: '250px' }}><Button value={pn.phone} style={{ float: 'right' }} onClick={() => this.deleteContact(pn.phone)}><DeleteForeverIcon /></Button></TableCell>
           </TableRow>
         );
       });
     } else {
-      contactList = <p>No contacts found</p>;
+      contactList = (
+        <p style={{
+          margin: 15,
+          background: '#00000033',
+          padding: 15,
+          borderRadius: 3,
+          fontSize: '1.3em'
+        }}
+        >
+          No contacts
+        </p>
+      );
     }
 
     const inputStyles = {
@@ -114,7 +153,7 @@ export default class DirectoryAdmin extends React.Component {
     };
 
     return (
-      <Paper style={{ margin: 15 }}>
+      <Paper style={{ margin: 15, maxWidth: 750 }}>
         <Grid spacing={2}>
           <Grid item xs={12}>
             <form onSubmit={this.createContact}>
@@ -152,13 +191,14 @@ export default class DirectoryAdmin extends React.Component {
             <Table stickyheader aria-label="simple table">
               <TableHead style={{ display: 'block' }}>
                 <TableRow>
-                  <TableCell style={{ paddingLeft: 12, width: '100%' }}>Name</TableCell>
-                  <TableCell style={{ paddingLeft: 12, width: '100%' }}>Phone Number</TableCell>
-                  <TableCell style={{ paddingLeft: 12, width: '100%' }}>Edit</TableCell>
-                  <TableCell style={{ paddingLeft: 12, width: '100%' }}>Delete</TableCell>
+                  <TableCell style={{ paddingLeft: 12, width: '250px' }}>Name</TableCell>
+                  <TableCell style={{ paddingLeft: 12, width: '250px' }}>Phone Number</TableCell>
+                  <TableCell style={{ paddingLeft: 12, width: '250px' }} />
                 </TableRow>
               </TableHead>
-              <TableBody style={{ display: 'block', overflowY: 'auto', height: 600 }}>{contactList}</TableBody>
+              <TableBody style={{ display: 'block', overflowY: 'auto', height: 600 }}>
+                {contactList}
+              </TableBody>
             </Table>
           </Grid>
         </Grid>
