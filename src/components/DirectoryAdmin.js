@@ -9,6 +9,8 @@ import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 import TableCell from "@material-ui/core/TableCell";
 import TableBody from "@material-ui/core/TableBody";
+import Paper from '@material-ui/core/Paper';
+
 
 export default class DirectoryAdmin extends React.Component {
 
@@ -96,8 +98,10 @@ export default class DirectoryAdmin extends React.Component {
       contactList = this.state.contacts.map(pn => {
         return (
           <TableRow key={pn.phone}>
-            <TableCell style={{ paddingLeft: 12 }}>{pn.name}</TableCell>
-            <TableCell>{pn.phone}</TableCell>
+            <TableCell style={{ paddingLeft: 12, width: '100%' }}>{pn.name}</TableCell>
+            <TableCell style={{ width: '100%' }}>{pn.phone}</TableCell>
+            <TableCell style={{ width: '100%' }}>Edit</TableCell>
+            <TableCell style={{ width: '100%' }}>Delete</TableCell>
           </TableRow>
         );
       });
@@ -110,7 +114,7 @@ export default class DirectoryAdmin extends React.Component {
     };
 
     return (
-      <div>
+      <Paper style={{ margin: 15 }}>
         <Grid spacing={2}>
           <Grid item xs={12}>
             <form onSubmit={this.createContact}>
@@ -144,19 +148,21 @@ export default class DirectoryAdmin extends React.Component {
               </Fab>
             </form>
           </Grid>
-          <Grid item xs={12}>
-            <Table aria-label="simple table">
-              <TableHead>
+          <Grid item xs={12} style={{ maxHeight: 440 }}>
+            <Table stickyheader aria-label="simple table">
+              <TableHead style={{ display: 'block' }}>
                 <TableRow>
-                  <TableCell>Name</TableCell>
-                  <TableCell>Phone Number</TableCell>
+                  <TableCell style={{ paddingLeft: 12, width: '100%' }}>Name</TableCell>
+                  <TableCell style={{ paddingLeft: 12, width: '100%' }}>Phone Number</TableCell>
+                  <TableCell style={{ paddingLeft: 12, width: '100%' }}>Edit</TableCell>
+                  <TableCell style={{ paddingLeft: 12, width: '100%' }}>Delete</TableCell>
                 </TableRow>
               </TableHead>
-              <TableBody>{contactList}</TableBody>
+              <TableBody style={{ display: 'block', overflowY: 'auto', height: 600 }}>{contactList}</TableBody>
             </Table>
           </Grid>
         </Grid>
-      </div>
+      </Paper>
     );
   }
 }
