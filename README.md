@@ -1,6 +1,13 @@
-# Your custom Twilio Flex Plugin
+# Flex Directory
 
-Twilio Flex Plugins allow you to customize the appearance and behavior of [Twilio Flex](https://www.twilio.com/flex). If you want to learn more about the capabilities and how to use the API, check out our [Flex documentation](https://www.twilio.com/docs/flex).
+This plugin allows agents to transfer calls to external numbers from a pre-configured directory. It is still in active development, use at your own risk.
+
+Todo:
+
+- [ ] Authenticate requests to the contacts DB
+- [ ] Make Directory Admin interface only viewable to Supervisors
+- [ ] Add search and pagination to transfer interface
+- [ ] Add search to the transfer interface
 
 ## Setup
 
@@ -9,7 +16,7 @@ Make sure you have [Node.js](https://nodejs.org) as well as [`npm`](https://npmj
 Afterwards, install the dependencies by running `npm install`:
 
 ```bash
-cd 
+cd
 
 # If you use npm
 npm install
@@ -31,14 +38,17 @@ PORT=3000 npm start
 
 When you make changes to your code, the browser window will be automatically refreshed.
 
+### Setting Up the Directory Sync Database
+
 1. Create a Sync Service
-twilio api:sync:v1:services:create --friendly-name=contacts
+   twilio api:sync:v1:services:create --friendly-name=contacts
 
-1. Add a Sync Map
-twilio api:sync:v1:services:maps:create --service-sid=ISfd2b646f1011b9eef310f522443c03d9
+1. Create a Sync Map
+   twilio api:sync:v1:services:maps:create --service-sid=ISXXXXXXXXXXXXXXXXXXXXXXXX
 
-1. Add Service SID and Map SID as environment variables
+1. Add `CONTACT_SYNC_SERVICE` and `CONTACT_SYNC_MAP` as environment variables in your Twilio Function configuration.
 
+1. Update the functions URL with your URL in `DirectoryAdmin.js` and `ConferenceDialog.js`.
 
 ## Deploy
 
