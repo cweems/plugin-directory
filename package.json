@@ -25,20 +25,22 @@
     "react": "16.5.2",
     "react-dom": "16.5.2",
     "react-phone-number-input": "1.1.14",
-    "react-scripts": "3.4.1"
+    "react-scripts": "3.4.1",
+    "validator": "^13.0.0"
   },
   "devDependencies": {
     "@twilio/flex-ui": "^1",
     "babel-polyfill": "^6.26.0",
     "enzyme": "^3.10.0",
     "enzyme-adapter-react-16": "^1.14.0",
-    "rimraf": "^3.0.0",
     "eslint-config-airbnb": "^17.1.1",
+    "eslint-config-prettier": "^6.10.1",
     "eslint-plugin-import": "^2.18.0",
     "eslint-plugin-jsx-a11y": "^6.2.3",
     "eslint-plugin-react": "^7.14.2",
     "js-base64": "^2.5.1",
-    "node-fetch": "^2.6.0"
+    "node-fetch": "^2.6.0",
+    "rimraf": "^3.0.0"
   },
   "browserslist": {
     "production": [

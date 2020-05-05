@@ -62,7 +62,7 @@ class ConferenceDialog extends React.Component {
   async componentDidMount() {
     try {
       const response = await fetch(
-        `https://charcoal-toad-5592.twil.io/get-contacts`
+        `https://[your-service-url]/get-contacts`
       );
       const json = await response.json();
       console.log('JSOOONS', json)

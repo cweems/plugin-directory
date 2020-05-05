@@ -4,7 +4,8 @@ module.exports = {
     es6: true,
     node: true,
   },
-  extends: 'airbnb',
+  extends: ['airbnb', 'prettier'],
+  plugins: ['prettier', 'react'],
   globals: {
     Atomics: 'readonly',
     SharedArrayBuffer: 'readonly',
@@ -17,11 +18,9 @@ module.exports = {
     ecmaVersion: 2018,
     sourceType: 'module',
   },
-  plugins: [
-    'react',
-  ],
   rules: {
     'space-before-function-paren': 0,
+    'prettier/prettier': ['error'],
     'func-names': 0,
     'no-console': 0,
     'arrow-parens': ['error', 'as-needed'],
@@ -37,7 +36,7 @@ module.exports = {
     'react/forbid-prop-types': 0,
     'no-extra-boolean-cast': 0,
     'prefer-destructuring': 0,
-    'no-underscore-dangle': ['error', { 'allowAfterThis': true }],
+    'no-underscore-dangle': ['error', { allowAfterThis: true }],
     'arrow-body-style': 0,
   },
 };

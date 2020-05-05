@@ -2,43 +2,43 @@ import * as React from 'react';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
 import FormControl from '@material-ui/core/FormControl';
-import Fab from "@material-ui/core/Fab";
-import AddIcon from "@material-ui/icons/Add";
-import Table from "@material-ui/core/Table";
-import TableHead from "@material-ui/core/TableHead";
-import TableRow from "@material-ui/core/TableRow";
-import TableCell from "@material-ui/core/TableCell";
-import TableBody from "@material-ui/core/TableBody";
+import Fab from '@material-ui/core/Fab';
+import AddIcon from '@material-ui/icons/Add';
+import Table from '@material-ui/core/Table';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
+import TableCell from '@material-ui/core/TableCell';
+import TableBody from '@material-ui/core/TableBody';
 import Paper from '@material-ui/core/Paper';
 import Button from '@material-ui/core/Button';
+import Typography from '@material-ui/core/Typography';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
-
+import isMobilePhone from 'validator/lib/isMobilePhone';
+import ErrorMessage from '@twilio/flex-ui';
 
 export default class DirectoryAdmin extends React.Component {
-
   constructor() {
     super();
 
     this.state = {
       contacts: [],
       newName: '',
-      newPhone: ''
+      newPhone: '',
+      invalidPhone: false,
+      error: null,
     };
 
+    this.serviceBaseUrl = 'https://[your-service-url].twil.io';
     this.updateName = this.updateName.bind(this);
     this.updatePhone = this.updatePhone.bind(this);
     this.createContact = this.createContact.bind(this);
     this.deleteContact = this.deleteContact.bind(this);
-
   }
 
   async componentDidMount() {
     try {
-      const response = await fetch(
-        'https://charcoal-toad-5592.twil.io/get-contacts'
-      );
+      const response = await fetch(`${this.serviceBaseUrl}/get-contacts`);
       const json = await response.json();
-      console.log('JSOOONS', json);
       this.setState({ contacts: JSON.parse(json) });
     } catch (error) {
       console.log(error);
@@ -60,88 +60,131 @@ export default class DirectoryAdmin extends React.Component {
   async createContact(e) {
     e.preventDefault();
 
-    const name = encodeURIComponent(this.state.newName);
-    const phone = encodeURIComponent(this.state.newPhone);
-
-    try {
-      const response = await fetch(
-        `https://charcoal-toad-5592.twil.io/create-contact?name=${name}&phone=${phone}`
+    if (isMobilePhone(this.state.newPhone, 'en-US') === true) {
+      console.log(
+        'valid contact',
+        isMobilePhone(this.state.newPhone, 'en-US'),
+        this.state.newPhone
       );
-      const json = await response.json();
+      const name = encodeURIComponent(this.state.newName);
+      const phone = encodeURIComponent(this.state.newPhone);
 
-      let contacts = this.state.contacts;
-      let newEntry = JSON.parse(json).data;
-      contacts.push(newEntry);
-      console.log('ud contacts', contacts);
+      try {
+        const response = await fetch(
+          `${this.serviceBaseUrl}/create-contact?name=${name}&phone=${phone}`
+        );
+        const json = await response.json();
 
+        let contacts = this.state.contacts;
+        const newEntry = JSON.parse(json).data;
+        contacts.push(newEntry);
+
+        this.setState({
+          newName: '',
+          newPhone: '',
+          contacts: contacts,
+        });
+      } catch (error) {
+        console.log('ERRRR');
+        console.log(error);
+        this.setState({
+          error,
+        });
+      }
+    } else {
+      console.log('invalid contact');
       this.setState({
-        newName: '',
-        newPhone: '',
-        contacts: contacts
+        invalidPhone: true,
       });
-    } catch (error) {
-      console.log(error);
     }
   }
 
   async deleteContact(key) {
-    console.log(key);
-    console.log('delete');
-
     try {
-      const response = await fetch(
-        `https://charcoal-toad-5592.twil.io/delete-contact?key=${encodeURIComponent(key)}`
-      );
+      await fetch(`${this.serviceBaseUrl}/delete-contact?key=${encodeURIComponent(key)}`);
 
-      console.log(this.state.contacts);
-
-      let contacts = this.state.contacts.filter((el) => {
+      const contacts = this.state.contacts.filter((el) => {
         if (el.phone !== key) {
           return el;
         }
       });
 
       this.setState({
-        contacts: contacts
+        contacts,
       });
     } catch (error) {
       console.log(error);
+      this.setState({
+        error,
+      });
     }
   }
 
   updateName(e) {
     this.setState({
-      newName: e.target.value
+      newName: e.target.value,
     });
   }
 
   updatePhone(e) {
     this.setState({
-      newPhone: e.target.value
+      newPhone: e.target.value,
+      invalidPhone: false,
     });
   }
 
   render() {
+    let errorComponent;
+
+    if (this.state.error) {
+      errorComponent = (
+        <p
+          style={{
+            marginBottom: 15,
+            background: '#fdecea',
+            padding: 15,
+            borderRadius: 3,
+            fontSize: '1.3em',
+          }}
+        >
+          {`${this.state.error}`}
+        </p>
+      );
+    }
+
     let contactList;
     if (this.state.contacts.length > 0) {
-      contactList = this.state.contacts.map(pn => {
+      contactList = this.state.contacts.map((pn) => {
         return (
           <TableRow key={pn.phone}>
-            <TableCell style={{ paddingLeft: 12, width: '250px', fontSize: '1.3em' }}>{pn.name}</TableCell>
-            <TableCell style={{ width: '250px', fontSize: '1.3em' }}>{pn.phone}</TableCell>
-            <TableCell style={{ width: '250px' }}><Button value={pn.phone} style={{ float: 'right' }} onClick={() => this.deleteContact(pn.phone)}><DeleteForeverIcon /></Button></TableCell>
+            <TableCell style={{ paddingLeft: 12, width: '250px', fontSize: '1.3em' }}>
+              {pn.name}
+            </TableCell>
+            <TableCell style={{ width: '250px', fontSize: '1.3em' }}>
+              {this.formatPhoneNumber(pn.phone)}
+            </TableCell>
+            <TableCell style={{ width: '250px' }}>
+              <Button
+                value={pn.phone}
+                style={{ float: 'right' }}
+                onClick={() => this.deleteContact(pn.phone)}
+              >
+                <DeleteForeverIcon />
+              </Button>
+            </TableCell>
           </TableRow>
         );
       });
     } else {
       contactList = (
-        <p style={{
-          margin: 15,
-          background: '#00000033',
-          padding: 15,
-          borderRadius: 3,
-          fontSize: '1.3em'
-        }}
+        <p
+          style={{
+            marginTop: 15,
+            background: '#00000033',
+            padding: 15,
+            borderRadius: 3,
+            fontSize: '1.3em',
+          }}
         >
           No contacts
         </p>
@@ -149,12 +192,23 @@ export default class DirectoryAdmin extends React.Component {
     }
 
     const inputStyles = {
-      margin: 12
+      marginTop: 15,
+      marginBottom: 15,
+      marginRight: 15,
     };
 
     return (
-      <Paper style={{ margin: 15, maxWidth: 750 }}>
+      <Paper style={{ margin: 15, maxWidth: 750 }} elevation={0}>
+        {errorComponent}
         <Grid spacing={2}>
+          <Grid item xs={12}>
+            <Typography variant="h5" component="h3">
+              Directory
+            </Typography>
+            <Typography component="p">
+              Add external contacts that agents can use for warm transfers.
+            </Typography>
+          </Grid>
           <Grid item xs={12}>
             <form onSubmit={this.createContact}>
               <FormControl>
@@ -170,6 +224,7 @@ export default class DirectoryAdmin extends React.Component {
               <FormControl>
                 <TextField
                   id="phone-number"
+                  error={this.state.invalidPhone}
                   label="Phone Number"
                   variant="outlined"
                   style={inputStyles}
@@ -177,12 +232,7 @@ export default class DirectoryAdmin extends React.Component {
                   onChange={this.updatePhone}
                 />
               </FormControl>
-              <Fab
-                color="primary"
-                type="submit"
-                aria-label="Add"
-                style={inputStyles}
-              >
+              <Fab color="primary" type="submit" aria-label="Add" style={inputStyles}>
                 <AddIcon />
               </Fab>
             </form>
