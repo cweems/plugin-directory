@@ -41,6 +41,11 @@ PORT=3000 npm start
 
 When you make changes to your code, the browser window will be automatically refreshed.
 
+### Setting Up Twilio Functions
+Create a new Twilio function in the console (API functions deploy currently not supported. Name each function after its file name, leaving out the .js extension.
+
+The Twilio functions have two dependencies: `js-base64` and `node-fetch`. Add both in your functions configuration tab in the console.
+
 ### Setting Up the Directory Sync Database
 
 1. Create a Sync Service
