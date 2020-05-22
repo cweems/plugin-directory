@@ -2,6 +2,8 @@
 
 This plugin allows agents to transfer calls to external numbers from a pre-configured directory. It is still in active development, use at your own risk.
 
+*Warning:* These Twilio Functions do not currently check to see if a user is authenticated. This means that any contacts you add to your contact list are publicly exposed to anyone with your functions URL. Use only for publicly available phone numbers.
+
 ![Screen Shot 2020-05-05 at 11 28 41 AM](https://user-images.githubusercontent.com/1418949/81101875-9bb02280-8ec3-11ea-81f3-2205b36c9746.png)
 ![Screen Shot 2020-05-05 at 11 28 22 AM](https://user-images.githubusercontent.com/1418949/81101878-9d79e600-8ec3-11ea-9ad5-691d210a21b8.png)
 
